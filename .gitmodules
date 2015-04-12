@@ -1,0 +1,4 @@
+[submodule "cabal"]
+	path = cabal
+	url = https://github.com/haskell/cabal
+	branch = 1.22
