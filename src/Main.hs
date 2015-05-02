@@ -303,7 +303,7 @@ xlistAction listFlags extraArgs globalFlags = do
             pv@(Version _ []) = P.packageVersion spkg
             xrev              = maybe (0::Word) read $ lookup "x-revision"
                                 $ PD.customFieldsPD $ PD.packageDescription $ pd
-            pref | maybe True (withinRange pv) $ Map.lookup pn pp = "P" -- preferred
+            pref | maybe True (withinRange pv) $ Map.lookup pn pp = "N" -- normal/preferred
                  | otherwise = "U" -- unpreferred
             autoflags         = [ (if flagDefault then '+' else '-') : n
                                 | PD.MkFlag {..} <- PD.genPackageFlags pd
