@@ -1,4 +1,8 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE RecordWildCards #-}
+
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
+
 
 -- cannibalised from `cabal-install`'s Main.hs
 
@@ -273,6 +277,8 @@ xlistAction listFlags extraArgs globalFlags = do
                              `mappend` listPackageDBs listFlags
           }
         globalFlags' = savedGlobalFlags    config `mappend` globalFlags
+
+    -- ???
     (comp, _, conf) <- configCompilerAux' configFlags
 
     let repos = globalRepos $ globalFlags'
@@ -297,11 +303,16 @@ xlistAction listFlags extraArgs globalFlags = do
             pv@(Version _ []) = P.packageVersion spkg
             xrev              = maybe (0::Word) read $ lookup "x-revision"
                                 $ PD.customFieldsPD $ PD.packageDescription $ pd
-            desired           = maybe True (withinRange pv) $ Map.lookup pn pp
+            pref | maybe True (withinRange pv) $ Map.lookup pn pp = "P" -- preferred
+                 | otherwise = "U" -- unpreferred
+            autoflags         = [ (if flagDefault then '+' else '-') : n
+                                | PD.MkFlag {..} <- PD.genPackageFlags pd
+                                , not flagManual
+                                , let PD.FlagName n = flagName ]
 
         -- print out line
         --   <pkg-name> <pkg-version> <pkg-x-revision> <pkg-is-undesired>
-        putStrLn $ unwords [ display pn, display pv, show xrev, display (not desired) ]
+        putStrLn $ unwords ([ display pn, display pv, show xrev, pref ] ++ autoflags)
 
 defaultListFlags :: ListFlags
 defaultListFlags = ListFlags {
